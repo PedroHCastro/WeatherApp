@@ -1,20 +1,25 @@
 import {useState, useEffect} from 'react';
-import Geolocation from '@react-native-community/geolocation';
+// import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 
 import {getForecast} from '../../repositories';
 import {
   CoordsDTO,
+  RawForecastModel,
   ForecastModel,
   ForecastToGraphModel,
-} from '../../common/models';
+} from '../../models';
 
-const useWeatherViewModel = () => {
+export const useForecastViewModel = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [rawDataForecast, setRawDataForecast] = useState<ForecastModel>();
+  const [rawDataForecast, setRawDataForecast] = useState<RawForecastModel>();
   const [dataForecast, setDataForecast] = useState<ForecastModel>();
   const [dataForecastToGraph, setDataForecastToGraph] =
     useState<ForecastToGraphModel>();
-  const [isMorning, setIsMorning] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const getGeolocation = (callback: (coords: CoordsDTO) => void) => {
     Geolocation.getCurrentPosition(info => {
@@ -52,8 +57,29 @@ const useWeatherViewModel = () => {
     return {day, hours: hoursFormated, minutes: minutesFormated};
   }
 
+  function transformDataToView(data: RawForecastModel) {
+    const formatedListData: any = [];
+
+    data.list.map(item => {
+      const date = formatTimestampToTime2(item.dt);
+
+      const newDt = `${date.day} - ${date.hours}:${date.minutes}`;
+      const newTempMax = formatTemperature(item.main.temp_max);
+      const newTempMin = formatTemperature(item.main.temp_min);
+      const newMain = {
+        ...item.main,
+        temp_max: newTempMax,
+        temp_min: newTempMin,
+      };
+      const newItem = {...item, dt: newDt, main: newMain};
+      formatedListData.push(newItem);
+    });
+
+    const newDataWeather = {...data, list: formatedListData} as ForecastModel;
+    return newDataWeather;
+  }
+
   const fetchForecast = async ({latitude, longitude}: CoordsDTO) => {
-    console.log({latitude, longitude});
     const mock = {
       cod: '200',
       message: 0,
@@ -1558,35 +1584,17 @@ const useWeatherViewModel = () => {
         sunrise: 1679753140,
         sunset: 1679797525,
       },
-    };
+    } as RawForecastModel;
 
-    const formatedListData: any = [];
     setRawDataForecast(mock);
-    mock.list.map(item => {
-      const date = formatTimestampToTime2(item.dt);
+    const Forecast = transformDataToView(mock);
+    setDataForecast(Forecast);
 
-      const newDt = `${date.day} - ${date.hours}:${date.minutes}`;
-      const newTempMax = formatTemperature(item.main.temp_max);
-      const newTempMin = formatTemperature(item.main.temp_min);
-      const newMain = {
-        ...item.main,
-        temp_max: newTempMax,
-        temp_min: newTempMin,
-      };
-      // dt: newDt, main: newMain
-      const newItem = {...item, dt: newDt, main: newMain};
-      formatedListData.push(newItem);
-    });
-
-    setDataForecast({...mock, list: formatedListData});
-    // console.log('fetchWeather---> step 1', {latitude, longitude});
     // try {
     //   setIsLoading(true);
     //   const response = await getForecast({latitude, longitude});
-    //   console.log(response);
     //   setDataWeather(response);
     // } catch (error) {
-    //   console.log('error---> ', error);
     // } finally {
     //   setIsLoading(false);
     // }
@@ -1599,7 +1607,7 @@ const useWeatherViewModel = () => {
     getGeolocation(callbackFetchData);
   };
 
-  const makeDataToGraph = (dataForecast?: ForecastModel) => {
+  const makeDataToGraph = (dataForecast?: RawForecastModel) => {
     if (dataForecast) {
       const dataToGraph: ForecastToGraphModel = {
         labels: [''],
@@ -1624,13 +1632,8 @@ const useWeatherViewModel = () => {
   }, [dataForecast]);
 
   return {
-    isMorning,
     dataForecast,
     dataForecastToGraph,
     isLoading,
-    setIsLoading,
-    fetchData,
   };
 };
-
-export default useWeatherViewModel;

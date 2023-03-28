@@ -17,10 +17,10 @@ export const Label = styled.Text`
   font-size: 12px;
   text-transform: uppercase;
   text-align: center;
-  color: #ffffff;
+  color: ${({theme}) => theme.colors.font};
 `;
 
 export const Value = styled.Text`
   font-size: 16px;
-  color: #ffffff;
+  color: ${({theme}) => theme.colors.font};
 `;

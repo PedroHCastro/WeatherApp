@@ -1,5 +1,5 @@
 import React from 'react';
-import {ForecastListItemModel} from '../../common/models';
+import {ForecastListItemModel} from '../../models';
 
 import * as Styled from './styles';
 

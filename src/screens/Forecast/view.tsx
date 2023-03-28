@@ -1,58 +1,59 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Dimensions, FlatList} from 'react-native';
-import {RowItem} from '../../components';
-
-import * as Styled from './styles';
-import useWeatherViewModel from './view.model';
-
+import {useTheme} from 'styled-components/native';
 import {LineChart} from 'react-native-chart-kit';
 
-export const Forecast: React.FC = () => {
-  const {isMorning, dataForecast, dataForecastToGraph, fetchData} =
-    useWeatherViewModel();
+import {RowItem} from '../../components';
+import {useForecastViewModel} from './view.model';
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+import * as Styled from './styles';
+
+export const Forecast: React.FC = () => {
+  const {dataForecast, dataForecastToGraph, isLoading} = useForecastViewModel();
+  const theme = useTheme();
 
   return (
     <Styled.Container>
+      <Styled.Title>Previsão para os próximos dias:</Styled.Title>
+
       {dataForecastToGraph ? (
-        <LineChart
-          data={{
-            labels: dataForecastToGraph.labels,
-            datasets: [
-              {
-                data: dataForecastToGraph.data,
+        <Styled.ChartWrapper testID="chart-wrapper">
+          <LineChart
+            data={{
+              labels: dataForecastToGraph.labels,
+              datasets: [
+                {
+                  data: dataForecastToGraph.data,
+                },
+              ],
+            }}
+            width={Dimensions.get('window').width - 40}
+            height={115}
+            withInnerLines={false}
+            chartConfig={{
+              backgroundGradientFrom: theme.colors.background,
+              backgroundGradientTo: theme.colors.background,
+              decimalPlaces: 0,
+              color: () => theme.colors.font,
+              labelColor: () => theme.colors.font,
+              propsForDots: {
+                r: '4',
+                strokeWidth: '2',
+                stroke: theme.colors.font,
               },
-            ],
-          }}
-          width={Dimensions.get('window').width - 40}
-          height={115}
-          withInnerLines={false}
-          chartConfig={{
-            backgroundGradientFrom: '#2f3543',
-            backgroundGradientTo: '#2f3543',
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(230, 230, 230, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(230, 230, 230, ${opacity})`,
-            propsForDots: {
-              r: '4',
-              strokeWidth: '2',
-              stroke: '#fff',
-            },
-          }}
-          bezier
-          style={{
-            alignSelf: 'center',
-            paddingBottom: 20,
-            paddingTop: 20,
-            borderRadius: 8,
-            borderColor: '#cdcdcd',
-            borderWidth: 1,
-            marginBottom: 20,
-          }}
-        />
+            }}
+            bezier
+            style={{
+              alignSelf: 'center',
+              paddingBottom: 20,
+              paddingTop: 20,
+              borderRadius: 8,
+              borderColor: '#cdcdcd',
+              borderWidth: 1,
+              marginBottom: 20,
+            }}
+          />
+        </Styled.ChartWrapper>
       ) : (
         <></>
       )}

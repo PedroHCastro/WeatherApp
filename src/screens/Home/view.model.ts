@@ -1,51 +1,129 @@
-import {useState} from 'react';
-import Geolocation from '@react-native-community/geolocation';
+import {useEffect, useState} from 'react';
+import {Platform} from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
+import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
+
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 import {getWeather} from '../../repositories';
-import {CoordsDTO, WeatherModel} from '../../common/models';
+import {CoordsDTO, RawWeatherModel, WeatherModel} from '../../models';
+import {useDate, useTemperature, useSpeed} from '../../hooks';
+import {RootStackScreenProps} from '../../routes';
 
-const useWeatherViewModel = () => {
+export const useHomeViewModel = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [dataWeather, setDataWeather] = useState<WeatherModel>();
-  const [isMorning, setIsMorning] = useState(false);
+  const [hasPermissionGeolocation, setHasPermissionGeolocation] =
+    useState<boolean>(false);
 
-  const getGeolocation = (callback: (coords: CoordsDTO) => void) => {
-    Geolocation.getCurrentPosition(info => {
-      const {latitude, longitude} = info.coords;
+  const {timestampToDate} = useDate();
+  const {formatTemperature} = useTemperature();
+  const {transformMsTOKh} = useSpeed();
 
-      callback({latitude, longitude});
-    });
+  const navigation =
+    useNavigation<RootStackScreenProps<'Home'>['navigation']>();
+  const route = useRoute<RootStackScreenProps<'Home'>['route']>();
+  const refresh = route.params?.refresh ?? false;
+
+  useEffect(() => {
+    if (refresh) {
+      fetchData();
+      navigation.setParams({refresh: false});
+    }
+  }, [refresh]);
+
+  useEffect(() => {
+    fetchData();
+  }, [hasPermissionGeolocation]);
+
+  const getGeolocation = async (callback: (coords: CoordsDTO) => void) => {
+    await checkPermission();
+    if (hasPermissionGeolocation) {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          callback({latitude, longitude});
+        },
+        error => {
+          console.log(error.code, error.message);
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      );
+    } else {
+      handleRequestPermission();
+    }
   };
 
-  function formatTemperature(
-    temp: number,
-    unit: 'fahrenheit' | 'kelvin' | 'celsius' = 'celsius',
-  ): string {
-    // kelvin celsius, fahrenheit
-    const postfix = {
-      fahrenheit: '°F',
-      kelvin: 'K',
-      celsius: 'ºC',
-    };
+  const checkPermission = async () => {
+    let hasPermission = false;
+    if (Platform.OS === 'ios') {
+      const resultAways = await check(PERMISSIONS.IOS.LOCATION_ALWAYS);
+      const resultWhenInUse = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      hasPermission =
+        resultAways === RESULTS.GRANTED || resultWhenInUse === RESULTS.GRANTED;
+    } else {
+      const result = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+      hasPermission = result === RESULTS.GRANTED;
+    }
 
-    return `${temp.toFixed(1).split('.')[0]} ${postfix[unit]}`;
-  }
+    setHasPermissionGeolocation(hasPermission);
+  };
+
+  const handleRequestPermission = async () => {
+    let result = '';
+    if (Platform.OS === 'ios') {
+      result = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+    } else {
+      result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+    }
+
+    if (result === 'blocked') {
+      setHasPermissionGeolocation(false);
+    } else {
+      setHasPermissionGeolocation(true);
+    }
+  };
 
   function formatTimestampToTime(timestamp: number) {
-    const date = new Date(timestamp * 1000);
-    const hours = date.getHours();
-    const minutes = '0' + date.getMinutes();
-
-    return `${hours}:${minutes.substring(-2)}`;
+    const date = timestampToDate(timestamp);
+    return `${date.hours}:${date.minutes}`;
   }
 
-  function transformMsTOkh(speed: number) {
-    const result = speed * 3.6;
-    return `${result.toFixed(1).replace('.', ',')} km/h`;
+  function transformDataToView(data: RawWeatherModel) {
+    const sunrise = data.sys.sunrise;
+    const sunset = data.sys.sunset;
+
+    const formatedSys = {
+      ...data.sys,
+      sunrise: formatTimestampToTime(sunrise),
+      sunset: formatTimestampToTime(sunset),
+    };
+
+    const speed = data.wind.speed;
+    const formatedWind = {
+      ...data.wind,
+      speed: transformMsTOKh(speed),
+    };
+
+    const formatedMain = {
+      ...data.main,
+      temp: formatTemperature(data.main.temp),
+      feels_like: formatTemperature(data.main.feels_like),
+      temp_min: formatTemperature(data.main.temp_min),
+      temp_max: formatTemperature(data.main.temp_max),
+    };
+
+    const newDataWeather = {
+      ...data,
+      sys: formatedSys,
+      wind: formatedWind,
+      main: formatedMain,
+    } as WeatherModel;
+
+    return newDataWeather;
   }
 
   const fetchWeather = async ({latitude, longitude}: CoordsDTO) => {
-    console.log({latitude, longitude});
     const mock = {
       coord: {
         lon: -44.9634,
@@ -56,15 +134,15 @@ const useWeatherViewModel = () => {
           id: 802,
           main: 'Clouds',
           description: 'nuvens dispersas',
-          icon: '02n',
+          icon: '02d',
         },
       ],
       base: 'stations',
       main: {
-        temp: formatTemperature(25.51),
-        feels_like: formatTemperature(26.39),
-        temp_min: formatTemperature(25.51),
-        temp_max: formatTemperature(25.51),
+        temp: 25.51,
+        feels_like: 26.39,
+        temp_min: 25.51,
+        temp_max: 25.51,
         pressure: 1015,
         humidity: 87,
         sea_level: 1015,
@@ -72,7 +150,7 @@ const useWeatherViewModel = () => {
       },
       visibility: 10000,
       wind: {
-        speed: transformMsTOkh(0.43),
+        speed: 0.43,
         deg: 334,
         gust: 1.1,
       },
@@ -82,24 +160,22 @@ const useWeatherViewModel = () => {
       dt: 1679775228,
       sys: {
         country: 'BR',
-        sunrise: formatTimestampToTime(1679735108),
-        sunset: formatTimestampToTime(1679778392),
+        sunrise: 1679735108,
+        sunset: 1679778392,
       },
       timezone: -10800,
       id: 3465090,
       name: 'Cruzeiro',
       cod: 200,
-    };
+    } as RawWeatherModel;
 
-    setDataWeather(mock);
-    // console.log('fetchWeather---> step 1', {latitude, longitude});
+    const newDataWeather = transformDataToView(mock);
+    setDataWeather(newDataWeather);
     // try {
     //   setIsLoading(true);
     //   const response = await getWeather({latitude, longitude});
-    //   console.log(response);
     //   setDataWeather(response);
     // } catch (error) {
-    //   console.log('error---> ', error);
     // } finally {
     //   setIsLoading(false);
     // }
@@ -112,18 +188,11 @@ const useWeatherViewModel = () => {
     getGeolocation(callbackFetchData);
   };
 
-  // useEffect(() => {
-  //   fetchWeather();
-  //   console.log('aaaqui');
-  // }, [latitude, longitude]);
-
   return {
-    isMorning,
     dataWeather,
     isLoading,
-    setIsLoading,
+    hasPermissionGeolocation,
     fetchData,
+    handleRequestPermission,
   };
 };
-
-export default useWeatherViewModel;
