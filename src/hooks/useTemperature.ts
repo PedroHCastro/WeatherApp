@@ -7,7 +7,7 @@ export default () => {
     const postfix = {
       fahrenheit: '°F',
       kelvin: 'K',
-      celsius: 'ºC',
+      celsius: '°C',
     };
 
     return `${temp.toFixed(1).split('.')[0]} ${postfix[unit]}`;
