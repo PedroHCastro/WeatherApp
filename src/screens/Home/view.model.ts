@@ -8,6 +8,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {getWeather} from '../../repositories';
 import {CoordsDTO, RawWeatherModel, WeatherModel} from '../../models';
 import {RootStackScreenProps} from '../../routes';
+import {useDate, useSpeed, useTemperature} from '../../hooks';
 
 export const useHomeViewModel = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
