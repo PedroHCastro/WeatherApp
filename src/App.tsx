@@ -1,8 +1,13 @@
 import React from 'react';
-import {Home} from './screens';
+import Router from './routes';
 
+import {AppContextProvider} from './context/AppContextProvider';
 function App(): JSX.Element {
-  return <Home />;
+  return (
+    <AppContextProvider>
+      <Router />
+    </AppContextProvider>
+  );
 }
 
 export default App;
