@@ -1,11 +1,12 @@
+import {APP_ID_WEATHER} from 'react-native-dotenv';
 import {CoordsDTO, RawWeatherModel} from '../models';
 import client from './client';
 
 export const getWeather = async ({latitude, longitude}: CoordsDTO) => {
   const params = {
-    appid: 'ede1bb2769d93b40529964b7aac02ee9',
+    appid: APP_ID_WEATHER,
     lat: latitude,
-    log: longitude,
+    lon: longitude,
     lang: 'pt_br',
     units: 'metric',
   };

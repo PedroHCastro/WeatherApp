@@ -4,4 +4,9 @@ module.exports = {
   rules: {
     'react-hooks/exhaustive-deps': false,
   },
+  env: {
+    es6: true,
+    jest: true,
+    node: true,
+  },
 };

@@ -3,7 +3,7 @@ import {Dimensions, FlatList} from 'react-native';
 import {useTheme} from 'styled-components/native';
 import {LineChart} from 'react-native-chart-kit';
 
-import {RowItem} from '../../components';
+import {RowItem, Loading} from '../../components';
 import {useForecastViewModel} from './view.model';
 
 import * as Styled from './styles';
@@ -14,6 +14,7 @@ export const Forecast: React.FC = () => {
 
   return (
     <Styled.Container>
+      <Loading visible={isLoading} />
       <Styled.Title>Previsão para os próximos dias:</Styled.Title>
 
       {dataForecastToGraph ? (

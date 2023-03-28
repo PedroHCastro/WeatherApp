@@ -7,7 +7,6 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 
 import {getWeather} from '../../repositories';
 import {CoordsDTO, RawWeatherModel, WeatherModel} from '../../models';
-import {useDate, useTemperature, useSpeed} from '../../hooks';
 import {RootStackScreenProps} from '../../routes';
 
 export const useHomeViewModel = () => {
@@ -124,61 +123,19 @@ export const useHomeViewModel = () => {
   }
 
   const fetchWeather = async ({latitude, longitude}: CoordsDTO) => {
-    const mock = {
-      coord: {
-        lon: -44.9634,
-        lat: -22.5765,
-      },
-      weather: [
-        {
-          id: 802,
-          main: 'Clouds',
-          description: 'nuvens dispersas',
-          icon: '02d',
-        },
-      ],
-      base: 'stations',
-      main: {
-        temp: 25.51,
-        feels_like: 26.39,
-        temp_min: 25.51,
-        temp_max: 25.51,
-        pressure: 1015,
-        humidity: 87,
-        sea_level: 1015,
-        grnd_level: 956,
-      },
-      visibility: 10000,
-      wind: {
-        speed: 0.43,
-        deg: 334,
-        gust: 1.1,
-      },
-      clouds: {
-        all: 46,
-      },
-      dt: 1679775228,
-      sys: {
-        country: 'BR',
-        sunrise: 1679735108,
-        sunset: 1679778392,
-      },
-      timezone: -10800,
-      id: 3465090,
-      name: 'Cruzeiro',
-      cod: 200,
-    } as RawWeatherModel;
+    setIsLoading(true);
 
-    const newDataWeather = transformDataToView(mock);
-    setDataWeather(newDataWeather);
-    // try {
-    //   setIsLoading(true);
-    //   const response = await getWeather({latitude, longitude});
-    //   setDataWeather(response);
-    // } catch (error) {
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      setIsLoading(true);
+      const response = await getWeather({latitude, longitude});
+      const newDataWeather = transformDataToView(response);
+      setDataWeather(newDataWeather);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchData = () => {

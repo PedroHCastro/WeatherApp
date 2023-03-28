@@ -2,15 +2,15 @@ import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 
 import {useHomeViewModel} from './view.model';
-import {PermissionNotFound} from '../../components';
+import {PermissionNotFound, GridCards, Loading} from '../../components';
 import {RootStackScreenProps} from '../../routes';
 import {useDate} from '../../hooks';
-import {GridCards} from '../../components/GridCards';
 
 import * as Styled from './styles';
 
 export const Home: React.FC = () => {
-  const {dataWeather, fetchData, hasPermissionGeolocation} = useHomeViewModel();
+  const {dataWeather, fetchData, hasPermissionGeolocation, isLoading} =
+    useHomeViewModel();
   const navigation =
     useNavigation<RootStackScreenProps<'Home'>['navigation']>();
 
@@ -34,6 +34,7 @@ export const Home: React.FC = () => {
 
   return (
     <Styled.Scroll>
+      <Loading visible={isLoading} />
       <Styled.Container>
         {dataWeather && (
           <>
