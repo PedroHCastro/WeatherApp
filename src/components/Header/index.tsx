@@ -23,6 +23,12 @@ function Header({navigation, theme, hasHeaderRight}: Props) {
           />
         </Styled.HeaderButton>
       );
+    } else {
+      return (
+        <Styled.HeaderButton onPress={() => navigation.navigate('Config')}>
+          <IconFontAwesome name="gear" color={theme.colors.font} size={30} />
+        </Styled.HeaderButton>
+      );
     }
   }
 

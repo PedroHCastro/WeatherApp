@@ -1,4 +1,4 @@
-import {Home, Forecast} from '../screens';
+import {Home, Forecast, Config} from '../screens';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
 import {RootStackParamList} from './types';
@@ -30,6 +30,16 @@ const Router = (): JSX.Element => {
       <RootStack.Screen
         name="Forecast"
         component={Forecast}
+        options={({navigation}) =>
+          Header({
+            navigation,
+            theme,
+          })
+        }
+      />
+      <RootStack.Screen
+        name="Config"
+        component={Config}
         options={({navigation}) =>
           Header({
             navigation,

@@ -7,7 +7,9 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 
 import {getWeather} from '../../repositories';
 import {CoordsDTO, RawWeatherModel, WeatherModel} from '../../models';
+import {useDate, useTemperature, useSpeed, useAppTheme} from '../../hooks';
 import {RootStackScreenProps} from '../../routes';
+import {getAppearanceAdapter} from '../../Adapters/appearanceAdapter';
 
 export const useHomeViewModel = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -18,6 +20,7 @@ export const useHomeViewModel = () => {
   const {timestampToDate} = useDate();
   const {formatTemperature} = useTemperature();
   const {transformMsTOKh} = useSpeed();
+  const {changeTheme} = useAppTheme();
 
   const navigation =
     useNavigation<RootStackScreenProps<'Home'>['navigation']>();
@@ -34,6 +37,14 @@ export const useHomeViewModel = () => {
   useEffect(() => {
     fetchData();
   }, [hasPermissionGeolocation]);
+
+  useEffect(() => {
+    const checkTheme = async () => {
+      const appearance = await getAppearanceAdapter();
+      if (appearance) changeTheme(appearance);
+    };
+    checkTheme();
+  }, []);
 
   const getGeolocation = async (callback: (coords: CoordsDTO) => void) => {
     await checkPermission();
