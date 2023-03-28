@@ -9,6 +9,7 @@ import {
   ForecastModel,
   ForecastToGraphModel,
 } from '../../models';
+import {useDate, useTemperature} from '../../hooks';
 
 export const useForecastViewModel = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -16,6 +17,9 @@ export const useForecastViewModel = () => {
   const [dataForecast, setDataForecast] = useState<ForecastModel>();
   const [dataForecastToGraph, setDataForecastToGraph] =
     useState<ForecastToGraphModel>();
+
+  const {timestampToDate} = useDate();
+  const {formatTemperature} = useTemperature();
 
   useEffect(() => {
     fetchData();
@@ -29,39 +33,11 @@ export const useForecastViewModel = () => {
     });
   };
 
-  function formatTemperature(
-    temp: number,
-    unit: 'fahrenheit' | 'kelvin' | 'celsius' = 'celsius',
-  ): string {
-    // kelvin celsius, fahrenheit
-    const postfix = {
-      fahrenheit: '°F',
-      kelvin: 'K',
-      celsius: 'ºC',
-    };
-
-    return `${temp.toFixed(1).split('.')[0]} ${postfix[unit]}`;
-  }
-
-  function formatTimestampToTime2(timestamp: number) {
-    var days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-    const date = new Date(timestamp * 1000);
-
-    const day = days[date.getDay()];
-    const hours = '0' + date.getHours();
-    const hoursFormated = hours.slice(-2);
-    const minutes = '0' + date.getMinutes();
-    const minutesFormated = minutes.slice(-2);
-
-    return {day, hours: hoursFormated, minutes: minutesFormated};
-  }
-
   function transformDataToView(data: RawForecastModel) {
     const formatedListData: any = [];
 
     data.list.map(item => {
-      const date = formatTimestampToTime2(item.dt);
+      const date = timestampToDate(item.dt);
 
       const newDt = `${date.day} - ${date.hours}:${date.minutes}`;
       const newTempMax = formatTemperature(item.main.temp_max);
@@ -1616,7 +1592,7 @@ export const useForecastViewModel = () => {
       dataToGraph.labels.splice(0, 1);
       dataToGraph.data.splice(0, 1);
       dataForecast.list.map(forecastItem => {
-        const date = formatTimestampToTime2(forecastItem.dt);
+        const date = timestampToDate(forecastItem.dt);
         if (!dataToGraph.labels.includes(date.day)) {
           dataToGraph.labels.push(date.day);
           dataToGraph.data.push(forecastItem.main.temp);
