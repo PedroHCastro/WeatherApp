@@ -1,4 +1,4 @@
-export interface WeatherModel {
+export type RawWeatherModel = {
   coord: {
     lon: number;
     lat: number;
@@ -46,9 +46,34 @@ export interface WeatherModel {
   id: number;
   name: string;
   cod: number;
-}
+};
 
-export interface CoordsDTO {
+export type WeatherModel = Omit<RawWeatherModel, 'main' | 'wind' | 'sys'> & {
+  main: {
+    temp: string;
+    feels_like: string;
+    temp_min: string;
+    temp_max: string;
+    pressure: number;
+    humidity: number;
+    sea_level: number;
+    grnd_level: number;
+  };
+  sys: {
+    type: number;
+    id: number;
+    country: string;
+    sunrise: string;
+    sunset: string;
+  };
+  wind: {
+    speed: string;
+    deg: number;
+    gust: number;
+  };
+};
+
+export type CoordsDTO = {
   latitude: number;
   longitude: number;
-}
+};
