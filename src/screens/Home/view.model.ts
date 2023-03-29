@@ -35,7 +35,9 @@ export const useHomeViewModel = () => {
   }, [refresh]);
 
   useEffect(() => {
-    fetchData();
+    if (!isLoading) {
+      fetchData();
+    }
   }, [hasPermissionGeolocation]);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export const useHomeViewModel = () => {
   }, []);
 
   const getGeolocation = async (callback: (coords: CoordsDTO) => void) => {
-    await checkPermission();
+    await handleRequestPermission();
     if (hasPermissionGeolocation) {
       Geolocation.getCurrentPosition(
         position => {
@@ -59,8 +61,6 @@ export const useHomeViewModel = () => {
         },
         {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
       );
-    } else {
-      handleRequestPermission();
     }
   };
 
@@ -86,12 +86,13 @@ export const useHomeViewModel = () => {
     } else {
       result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
     }
+    await checkPermission();
 
-    if (result === 'blocked') {
-      setHasPermissionGeolocation(false);
-    } else {
-      setHasPermissionGeolocation(true);
-    }
+    // if (result === 'blocked') {
+    //   setHasPermissionGeolocation(false);
+    // } else {
+    //   setHasPermissionGeolocation(true);
+    // }
   };
 
   function formatTimestampToTime(timestamp: number) {

@@ -9,8 +9,7 @@ import {useDate} from '../../hooks';
 import * as Styled from './styles';
 
 export const Home: React.FC = () => {
-  const {dataWeather, fetchData, hasPermissionGeolocation, isLoading} =
-    useHomeViewModel();
+  const {dataWeather, hasPermissionGeolocation, isLoading} = useHomeViewModel();
   const navigation =
     useNavigation<RootStackScreenProps<'Home'>['navigation']>();
 
