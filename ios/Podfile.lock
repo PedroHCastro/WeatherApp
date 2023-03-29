@@ -78,6 +78,12 @@ PODS:
   - hermes-engine/Pre-built (0.71.4)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
+  - Permission-LocationAccuracy (3.8.0):
+    - RNPermissions
+  - Permission-LocationAlways (3.8.0):
+    - RNPermissions
+  - Permission-LocationWhenInUse (3.8.0):
+    - RNPermissions
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -465,6 +471,9 @@ DEPENDENCIES:
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
   - OpenSSL-Universal (= 1.1.1100)
+  - Permission-LocationAccuracy (from `../node_modules/react-native-permissions/ios/LocationAccuracy/Permission-LocationAccuracy.podspec`)
+  - Permission-LocationAlways (from `../node_modules/react-native-permissions/ios/LocationAlways/Permission-LocationAlways.podspec`)
+  - Permission-LocationWhenInUse (from `../node_modules/react-native-permissions/ios/LocationWhenInUse/Permission-LocationWhenInUse.podspec`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -533,6 +542,12 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
+  Permission-LocationAccuracy:
+    :path: "../node_modules/react-native-permissions/ios/LocationAccuracy/Permission-LocationAccuracy.podspec"
+  Permission-LocationAlways:
+    :path: "../node_modules/react-native-permissions/ios/LocationAlways/Permission-LocationAlways.podspec"
+  Permission-LocationWhenInUse:
+    :path: "../node_modules/react-native-permissions/ios/LocationWhenInUse/Permission-LocationWhenInUse.podspec"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -622,6 +637,9 @@ SPEC CHECKSUMS:
   hermes-engine: a1f157c49ea579c28b0296bda8530e980c45bdb3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
+  Permission-LocationAccuracy: d6aa5146c084e7077e7efc4cbb543c7f6c72c51a
+  Permission-LocationAlways: e7ce67f3091ec096b6ac274bc30a18830a66b33c
+  Permission-LocationWhenInUse: 1c80e4797ae587642a83125e80b86686cefeba53
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 5a024fdf458fa8c0d82fc262e76f982d4dcdecdd
   RCTTypeSafety: b6c253064466411c6810b45f66bc1e43ce0c54ba
@@ -659,6 +677,6 @@ SPEC CHECKSUMS:
   Yoga: 79dd7410de6f8ad73a77c868d3d368843f0c93e0
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 48faceb764cb81accfb4ce76d98c9e69beeeed76
+PODFILE CHECKSUM: 659fd37cd39f8b494c3c57493f02616ef99f6d81
 
 COCOAPODS: 1.11.2
